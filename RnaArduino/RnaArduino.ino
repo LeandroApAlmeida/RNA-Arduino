@@ -35,12 +35,12 @@
 // Autor: Leandro Ap. Almeida
 
 
-#define NumberOf(arg) ((unsigned int) (sizeof (arg) / sizeof (arg [0]))) 
-
 #define _1_OPTIMIZE B00010000
 #define ACTIVATION__PER_LAYER
 #define Sigmoid
 #define Tanh
+
+#define numberOf(arg) ((unsigned int) (sizeof (arg) / sizeof (arg [0]))) 
 
 #include <NeuralNetwork.h>
 
@@ -67,7 +67,7 @@ const int INPUT_PIN_10 = 40;
 
 
 // Conjunto de treinamento da rede neural.
-const float train[14][10] = {
+const float trainingSet[14][10] = {
   //Começa com 0's e terminam com 1's,
   //ou tem somente 0's
   {0, 0, 0, 0, 1, 1, 1, 1, 1, 1},
@@ -89,7 +89,7 @@ const float train[14][10] = {
 };
 
 // Saídas esperadas para o conjunto de treinamento
-const float expected[14][3] = {
+const float expectedOut[14][3] = {
   //Se começa com 0's e termina com 1's é {0, 0, 0}
   {0, 0, 0}, 
   {0, 0, 0}, 
@@ -118,14 +118,14 @@ unsigned int layers[] = {
 };
 
 // Função de ativação para cada camada oculta e a de saída.
-byte Actv_Functions[] = {
+byte activationFunctions[] = {
   1,
   1,
   0
 };
 
 // Cria a rede neural .
-NeuralNetwork NN(layers, NumberOf(layers), Actv_Functions);
+NeuralNetwork NN(layers, numberOf(layers), activationFunctions);
 
 
 // Define o modo de cada um dos pinos que serão lidos
@@ -133,7 +133,7 @@ NeuralNetwork NN(layers, NumberOf(layers), Actv_Functions);
 // à camada de entrada da rede neural. Pinos de 31 a 35
 // (ímpares) estarão conectados à camada de saída da rede
 // neural.
-void set_pin_mode() {
+void setPinMode() {
 
   // AVISO MUITO IMPORTANTE!!!
   //   
@@ -193,7 +193,7 @@ void set_pin_mode() {
 
 // Ativa o LED da placa para indicar que a rede neural está sendo
 // treinada. Pisca o LED 3 vezes antes de ativá-lo.
-void led_on() {
+void turnOnTheLED() {
   digitalWrite(OUTPUT_PIN_01, HIGH);
   delay(500);
   digitalWrite(OUTPUT_PIN_01, LOW);
@@ -212,7 +212,7 @@ void led_on() {
 
 // Desativa o LED da placa para indicar que a rede neural já foi
 // treinada. Pisca o LED 3 vezes antes de desativá-lo.
-void led_off() {
+void turnOffTheLED() {
   digitalWrite(OUTPUT_PIN_01, LOW);
   delay(500);
   digitalWrite(OUTPUT_PIN_01, HIGH);
@@ -234,16 +234,16 @@ void setup() {
 
   Serial.begin(9600);
   randomSeed(analogRead(0));
-  set_pin_mode();
-  led_on();
+  setPinMode();
+  turnOnTheLED();
 
   // Ajusta os pesos sinapticos com o treinamento da rede neural.
   do { 
-    for (int i = 0; i < NumberOf(train); i++) {
-      NN.FeedForward(train[i]);
-      NN.BackProp(expected[i]);
+    for (int i = 0; i < numberOf(trainingSet); i++) {
+      NN.FeedForward(trainingSet[i]);
+      NN.BackProp(expectedOut[i]);
     }
-  } while(NN.getMeanSqrdError(NumberOf(train)) > 0.003);
+  } while(NN.getMeanSqrdError(numberOf(trainingSet)) > 0.003);
 
   // Imprime o conjunto de treinamento no console.
   Serial.print("\n\n");
@@ -252,12 +252,12 @@ void setup() {
   for (int i = 0; i < 14; i++) {
     Serial.print("\n");
     for (int j= 0; j < 10; j++) {
-      Serial.print((int) train[i][j]);
+      Serial.print((int) trainingSet[i][j]);
       Serial.print(" ");
     }
     Serial.print("    ->     ");
     for (int j= 0; j < 3; j++) {
-      Serial.print((int) expected[i][j]);
+      Serial.print((int) expectedOut[i][j]);
       Serial.print(" ");
     }
   }
@@ -265,7 +265,7 @@ void setup() {
   Serial.print("\n\n------------------------------------------------");
   Serial.print("\n\n");
 
-  led_off();
+  turnOffTheLED();
 
   Serial.print("ENTRADAS:                      SAÍDAS CALCULADAS\n");
 
@@ -330,7 +330,7 @@ void loop() {
   digitalWrite(OUTPUT_PIN_04, round(output[2]));
 
   // Imprime no console do IDE o resultado do cálculo.
-  for (int i = 0; i < NumberOf(input); i++) {
+  for (int i = 0; i < numberOf(input); i++) {
     Serial.print(round(input[i]));
     Serial.print(" ");
   }
